@@ -2,18 +2,17 @@ package ru.andrmuratov.NauJava.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.andrmuratov.NauJava.dao.TaskRepository;
+import ru.andrmuratov.NauJava.repository.TaskRepository;
 import ru.andrmuratov.NauJava.entity.Task;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.StreamSupport;
 
 @Service
 public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
-    private final AtomicLong idGenerator = new AtomicLong(1);
 
     @Autowired
     public TaskServiceImpl(TaskRepository taskRepository) {
@@ -23,46 +22,44 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public void createTask(String title, String description, Task.Priority priority, Task.Status status) {
         Task task = new Task();
-        task.setId(idGenerator.getAndIncrement());
         task.setTitle(title);
         task.setDescription(description);
-        task.setPriority(priority);
-        task.setStatus(status);
+        task.setPriority(priority.name());
+        task.setStatus(status.name());
         task.setDeadline(LocalDateTime.now().plusDays(7));
-        taskRepository.create(task);
+        taskRepository.save(task);
     }
 
     @Override
     public Task findById(Long id) {
-        return taskRepository.read(id);
+        return taskRepository.findById(id).orElse(null);
     }
 
     @Override
     public void deleteById(Long id) {
-        taskRepository.delete(id);
+        taskRepository.deleteById(id);
     }
 
     @Override
     public void updateTask(Long id, String title, String description, Task.Priority priority, Task.Status status) {
-        Task task = taskRepository.read(id);
+        Task task = taskRepository.findById(id).orElse(null);
         if (task != null) {
             task.setTitle(title);
             task.setDescription(description);
-            task.setPriority(priority);
-            task.setStatus(status);
-            taskRepository.update(task);
+            task.setPriority(priority.name());
+            task.setStatus(status.name());
+            taskRepository.save(task);
         }
     }
 
     @Override
     public List<Task> findAll() {
-        return taskRepository.findAll();
+        return StreamSupport.stream(taskRepository.findAll().spliterator(), false)
+                .toList();
     }
 
     @Override
     public List<Task> findByStatus(Task.Status status) {
-        return taskRepository.findAll().stream()
-                .filter(task -> task.getStatus() == status)
-                .toList();
+        return taskRepository.findByStatus(status.name());
     }
 }
