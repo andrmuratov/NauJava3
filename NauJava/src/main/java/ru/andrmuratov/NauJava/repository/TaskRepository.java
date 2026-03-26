@@ -1,10 +1,12 @@
 package ru.andrmuratov.NauJava.repository;
 
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.repository.CrudRepository;
 import ru.andrmuratov.NauJava.entity.Task;
 import java.util.List;
 
+@RepositoryRestResource(path = "tasks")
 public interface TaskRepository extends CrudRepository<Task, Long> {
     List<Task> findByStatus(String status);
     List<Task> findByUserId(Long userId);
