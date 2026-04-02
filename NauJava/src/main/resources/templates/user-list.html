@@ -12,6 +12,13 @@
 </head>
 <body>
 <h1>User List</h1>
+<div>
+    <span th:text="${#authentication.name}"></span>
+    <span th:text="${#authentication.authorities}"></span>
+    <form th:action="@{/logout}" method="post" style="display: inline;">
+        <button type="submit">Logout</button>
+    </form>
+</div>
 <table>
     <tr>
         <th>ID</th>
@@ -21,13 +28,13 @@
     </tr>
     <tr th:each="user : ${users}">
         <td th:text="${user.id}"></td>
-        <td th:text="${user.name}"></td>
+        <td th:text="${user.username}"></td>
         <td th:text="${user.email}"></td>
         <td th:text="${user.role}"></td>
     </tr>
 </table>
 <br>
-<a href="/swagger-ui/index.html">Swagger UI</a> |
-<a href="/actuator">Actuator</a>
+<a th:href="@{/swagger-ui/index.html}">Swagger UI</a> |
+<a th:href="@{/actuator}">Actuator</a>
 </body>
 </html>

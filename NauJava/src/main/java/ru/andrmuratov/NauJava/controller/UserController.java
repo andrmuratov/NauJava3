@@ -6,6 +6,7 @@ import ru.andrmuratov.NauJava.entity.User;
 import ru.andrmuratov.NauJava.repository.UserRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
@@ -18,13 +19,18 @@ public class UserController {
         this.userRepository = userRepository;
     }
 
-    @GetMapping("/by-name")
-    public List<User> findByName(@RequestParam String name) {
-        return userRepository.findByName(name);
+    @GetMapping("/by-username")
+    public Optional<User> findByUsername(@RequestParam String username) {
+        return userRepository.findByUsername(username);
     }
 
     @GetMapping("/by-role")
     public List<User> findByRole(@RequestParam String role) {
         return userRepository.findByRoleJPQL(role);
+    }
+
+    @GetMapping("/by-role-email")
+    public List<User> findByRoleAndEmail(@RequestParam String role, @RequestParam String email) {
+        return userRepository.findByRoleAndEmailContaining(role, email);
     }
 }

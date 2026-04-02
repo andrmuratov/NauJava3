@@ -1,6 +1,7 @@
 package ru.andrmuratov.NauJava.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.andrmuratov.NauJava.entity.Task;
@@ -15,20 +16,25 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final TaskRepository taskRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, TaskRepository taskRepository) {
+    public UserServiceImpl(UserRepository userRepository,
+                           TaskRepository taskRepository,
+                           PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.taskRepository = taskRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     @Transactional
-    public void createUserWithTask(String name, String email, String role, String taskTitle) {
+    public void createUserWithTask(String username, String email, String role, String taskTitle) {
         User user = new User();
-        user.setName(name);
+        user.setUsername(username);
         user.setEmail(email);
         user.setRole(role);
+        user.setPassword(passwordEncoder.encode("defaultPassword"));
         userRepository.save(user);
 
         Task task = new Task();
