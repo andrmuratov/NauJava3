@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Report</title>
+</head>
+<body>
+<h1>Report Generation</h1>
+<button onclick="generateReport()">Generate Report</button>
+<div id="result"></div>
+<script>
+    async function generateReport() {
+        const response = await fetch('/api/reports', { method: 'POST' });
+        const data = await response.json();
+        const reportId = data.reportId;
+        document.getElementById('result').innerHTML = 'Report ID: ' + reportId;
+        setInterval(async () => {
+            const res = await fetch('/api/reports/' + reportId);
+            const text = await res.text();
+            if (text.includes('<!DOCTYPE html>')) {
+                document.getElementById('result').innerHTML = text;
+            }
+        }, 2000);
+    }
+</script>
+</body>
+</html>
