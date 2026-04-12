@@ -30,6 +30,6 @@ class UserServiceTest {
                 .findFirst()
                 .orElse(null);
         Assertions.assertNotNull(found);
-        Assertions.assertEquals(name, found.getName());
+        Assertions.assertEquals(name, found.getUsername());
     }
 }

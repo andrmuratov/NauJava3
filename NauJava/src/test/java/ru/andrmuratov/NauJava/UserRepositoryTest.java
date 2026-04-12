@@ -4,43 +4,55 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
 import ru.andrmuratov.NauJava.entity.User;
 import ru.andrmuratov.NauJava.repository.UserRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 @SpringBootTest
+@ActiveProfiles("test")
 class UserRepositoryTest {
 
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Test
-    void testFindByName() {
-        String name = UUID.randomUUID().toString();
+    void testFindByUsername() {
+        String username = UUID.randomUUID().toString();
         User user = new User();
-        user.setName(name);
-        user.setEmail(name + "@test.com");
+        user.setUsername(username);
+        user.setEmail(username + "@test.com");
         user.setRole("USER");
+        user.setPassword(passwordEncoder.encode("testPassword"));
         userRepository.save(user);
 
-        List<User> found = userRepository.findByName(name);
-        Assertions.assertFalse(found.isEmpty());
-        Assertions.assertEquals(name, found.get(0).getName());
+        Optional<User> found = userRepository.findByUsername(username);
+        assertThat(found).isPresent();
+        assertThat(found.get().getUsername()).isEqualTo(username);
     }
 
     @Test
     void testCriteriaAPI() {
-        String name = UUID.randomUUID().toString();
+        String username = UUID.randomUUID().toString();
+        String email = username + "@test.com";
         User user = new User();
-        user.setName(name);
-        user.setEmail(name + "@test.com");
+        user.setUsername(username);
+        user.setEmail(email);
         user.setRole("ADMIN");
+        user.setPassword(passwordEncoder.encode("testPassword"));
         userRepository.save(user);
 
-        List<User> found = userRepository.findByNameCriteria(name);
+        List<User> found = userRepository.findByRoleAndEmailContaining("ADMIN", "@test.com");
         Assertions.assertFalse(found.isEmpty());
-        Assertions.assertEquals(name, found.get(0).getName());
+        Assertions.assertEquals(username, found.get(0).getUsername());
     }
 }
