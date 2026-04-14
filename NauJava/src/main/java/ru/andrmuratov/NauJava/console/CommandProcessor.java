@@ -33,21 +33,27 @@ public class CommandProcessor {
     private void process(String input) {
         String[] parts = input.split(" ");
         String cmd = parts[0];
+        
+        String result;
         try {
-            switch (cmd) {
-                case "create" -> createTask();
-                case "list" -> listTasks();
-                case "find" -> findTask(parts);
-                case "delete" -> deleteTask(parts);
-                case "update" -> updateTask(parts);
-                default -> System.out.println("Unknown command");
-            }
+            result = switch (cmd) {
+                case "create" -> handleCreate();
+                case "list" -> handleList();
+                case "find" -> handleFind(parts);
+                case "delete" -> handleDelete(parts);
+                case "update" -> handleUpdate(parts);
+                default -> "Unknown command";
+            };
         } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+            result = "Error: " + e.getMessage();
+        }
+        
+        if (result != null && !result.isEmpty()) {
+            System.out.println(result);
         }
     }
 
-    private void createTask() {
+    private String handleCreate() {
         System.out.print("Title: ");
         String title = scanner.nextLine();
         System.out.print("Description: ");
@@ -56,28 +62,36 @@ public class CommandProcessor {
         Task.Priority priority = Task.Priority.valueOf(scanner.nextLine().toUpperCase());
         System.out.print("Status (TODO/IN_PROGRESS/DONE): ");
         Task.Status status = Task.Status.valueOf(scanner.nextLine().toUpperCase());
+        
         taskService.createTask(title, desc, priority, status);
-        System.out.println("Task created");
+        return "Task created";
     }
 
-    private void listTasks() {
+    private String handleList() {
         List<Task> tasks = taskService.findAll();
-        tasks.forEach(System.out::println);
+        if (tasks.isEmpty()) {
+            return "No tasks found";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (Task task : tasks) {
+            sb.append(task).append("\n");
+        }
+        return sb.toString().trim();
     }
 
-    private void findTask(String[] parts) {
+    private String handleFind(String[] parts) {
         Long id = Long.valueOf(parts[1]);
         Task task = taskService.findById(id);
-        System.out.println(task != null ? task : "Not found");
+        return task != null ? task.toString() : "Not found";
     }
 
-    private void deleteTask(String[] parts) {
+    private String handleDelete(String[] parts) {
         Long id = Long.valueOf(parts[1]);
         taskService.deleteById(id);
-        System.out.println("Deleted");
+        return "Deleted";
     }
 
-    private void updateTask(String[] parts) {
+    private String handleUpdate(String[] parts) {
         Long id = Long.valueOf(parts[1]);
         System.out.print("New Title: ");
         String title = scanner.nextLine();
@@ -87,7 +101,8 @@ public class CommandProcessor {
         Task.Priority priority = Task.Priority.valueOf(scanner.nextLine().toUpperCase());
         System.out.print("New Status (TODO/IN_PROGRESS/DONE): ");
         Task.Status status = Task.Status.valueOf(scanner.nextLine().toUpperCase());
+        
         taskService.updateTask(id, title, desc, priority, status);
-        System.out.println("Updated");
+        return "Updated";
     }
 }
